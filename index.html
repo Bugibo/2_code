@@ -1,0 +1,230 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
+
+    <title>Двоичная система</title>
+    <script src="https://unpkg.com/vue"></script>
+</head>
+<body>
+<style>
+    body {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none;
+        /* Non-prefixed version, currently
+                                         supported by Chrome and Opera */
+    }
+
+    table {
+        width: 100%;
+    }
+
+    table td {
+        width: 12%;
+    }
+
+    td.bit {
+        font-size: 100px;
+        font-family: Roboto;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    td.bit div.text {
+        padding: 20px;
+    }
+
+    td.help {
+        font-size: 16px;
+        font-family: Roboto;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    div.checkbox.switcher label, div.radio.switcher label {
+        padding: 0;
+    }
+
+    div.checkbox.switcher label *, div.radio.switcher label * {
+        vertical-align: middle;
+    }
+
+    div.checkbox.switcher label input, div.radio.switcher label input {
+        display: none;
+    }
+
+    div.checkbox.switcher label input + span, div.radio.switcher label input + span {
+        position: relative;
+        display: inline-block;
+        margin-right: 10px;
+        width: 56px;
+        height: 28px;
+        background: #f2f2f2;
+        border: 1px solid #eee;
+        border-radius: 50px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    div.checkbox.switcher label input + span small, div.radio.switcher label input + span small {
+        position: absolute;
+        display: block;
+        width: 50%;
+        height: 100%;
+        background: #fff;
+        border-radius: 50%;
+        transition: all 0.3s ease-in-out;
+        left: 0;
+    }
+
+    div.checkbox.switcher label input:checked + span, div.radio.switcher label input:checked + span {
+        background: #269bff;
+        border-color: #269bff;
+    }
+
+    div.checkbox.switcher label input:checked + span small, div.radio.switcher label input:checked + span small {
+        left: 50%;
+    }
+
+</style>
+
+<div class="container" id="app">
+    <table align="center">
+        <tr>
+            <td class="bit" v-for="(item, index) in binArray" @click="onBitClick(index);" style="height: 200px;">
+                <div v-if="!isLamps" class="text">
+                    {{ item }}
+                </div>
+                <div v-if="isLamps">
+                    <img v-if="item===1" src="/static/core/i/lamp_on.png" height="170"/>
+                    <img v-if="item===0" src="/static/core/i/lamp_off.png" height="170"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="help" v-for="(item, index) in binArray">{{ Math.pow(2, 7-index) }}</td>
+        </tr>
+    </table>
+
+    <div class="row" style="margin-top: 60px;">
+        <div class="col-sm" style="text-align: center">
+            <div class="checkbox switcher">
+                <label for="test" style="cursor: pointer">
+                    <input type="checkbox" id="test" value="" v-model="isLamps">
+                    <span><small></small></span>
+                    Лампочки
+                </label>
+            </div>
+        </div>
+        <div class="col-sm" style="text-align: center; font-size: 30px;">
+            <span @click="decDec();" style="cursor:pointer;">&#9664;</span>
+            <input type="number" min="0" max="255" v-model="decValue" style="width: 100px;text-align: center;"/>
+            <span @click="incDec();" style="cursor:pointer;">&#9654;</span>
+        </div>
+
+    </div>
+
+    <div class="row" style="margin-top: 60px;">
+        <div class="col-sm" style="text-align: center">
+            Получить <a href="/">45 бесплатных уроков</a> по языку программирования Python
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        mounted() {
+        },
+        watch: {
+            decValue(val) {
+                if (val > 255) {
+                    this.decValue = 255;
+                }
+                if (val < 0) {
+                    this.decValue = 0;
+                }
+            }
+        },
+        computed: {
+            binArray() {
+                let decInt = parseInt(this.decValue, 10);
+                if (decInt && decInt >= 0) {
+                    let result = [];
+                    this.mask.forEach((v) => {
+                        if (v & decInt) {
+                            result.push(1);
+                        } else {
+                            result.push(0);
+                        }
+                    });
+                    return result;
+                } else {
+                    return [0, 0, 0, 0, 0, 0, 0, 0]
+                }
+            }
+        },
+        methods: {
+            onBitClick(index) {
+                let decInt = parseInt(this.decValue, 10);
+                if (decInt && decInt >= 0) {
+                    // wtf ?
+                } else {
+                    decInt = 0;
+                    this.decValue = 0;
+                }
+                if (this.mask[index] & decInt) {
+                    this.decValue = decInt & (~this.mask[index]);
+                } else {
+                    this.decValue = decInt | this.mask[index];
+                }
+            },
+            decDec() {
+                this.decValue = parseInt(this.decValue);
+                if (this.decValue > 0) {
+                    this.decValue -= 1;
+                }
+            },
+
+            incDec() {
+                this.decValue = parseInt(this.decValue);
+                if (this.decValue < 255) {
+                    this.decValue += 1;
+                }
+            }
+        },
+        data: {
+            decValue: 0,
+            mask: [128, 64, 32, 16, 8, 4, 2, 1],
+            viewType: 'digits',
+            isLamps: false,
+        }
+
+    });
+</script>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+</body>
+</html>
